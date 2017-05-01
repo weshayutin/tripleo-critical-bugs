@@ -1,0 +1,17 @@
+# Each line is a launchpad project name, filter regex
+[LaunchpadBugs]
+TripleO=tripleo,.*
+
+[TrelloConfig]
+token=
+api_key=
+board_id=
+list_outtage=Critical PChain Outage
+list_tech_debt=Release Blocker Technical Debt
+list_new=New / Triage
+
+[Email]
+smtp_server: 
+smtp_port: 25
+from: 
+to: 
