@@ -12,7 +12,10 @@
 #    under the License.
 
 import datetime
+from datetime import timedelta
+import pytz
 import re
+import pdb
 
 from launchpadlib.launchpad import Launchpad
 
@@ -43,8 +46,11 @@ class LaunchpadReport(object):
                                                     status=bug_statuses_open,
                                                     importance='Critical',
                                                     tags='alert'):
+                        now = datetime.datetime.now(pytz.UTC)
+                        five_hours_ago = now - timedelta(hours=5)
+                        if five_hours_ago > task.date_created:
+                            bugs_with_alerts_open[task.bug.id] = task.bug
 
-                        bugs_with_alerts_open[task.bug.id] = task.bug
                     for task in project.searchTasks(milestone=milestone,
                                                     status=bug_statuses_closed,
                                                     importance='Critical',
