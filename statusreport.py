@@ -76,19 +76,22 @@ class StatusReport(object):
         cards_outtage_names = []
         for card in cards:
             cards_outtage_names.append(card['name'])
+            print(card['name'])
 
         #debug only
         #open_bugs = ['1682135', '3343433434', '1680259', '1121211']
 
         match = []
         for card in cards_outtage_names:
-            print "card " + card
+            #print "card " + card
             for key in open_bugs:
-                print "key " + str(key)
+                #print "key " + str(key)
                 key = str(key)
                 if str(key) in str(card):
                     match.append(int(key))
-        print "match " + str(match)
+        print "##########################################"
+        print "openbugs " + str(set(open_bugs))
+        print "match " + str(set(match))
         critical_bugs_with_out_escalation_cards = list(set(open_bugs) - set(match))
         return critical_bugs_with_out_escalation_cards
 
@@ -121,9 +124,6 @@ class StatusReport(object):
                 trello_cards.create(msg['Subject'], trello_list)
 
 
-
-
-
 def main():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("files", metavar="FILE",  nargs='+', help="Configuration Files")
@@ -151,32 +151,18 @@ def main():
         trello_api_context = trello.ApiContext(config)
         trello_boards = trello.Boards(trello_api_context)
 
-        # get list id's
-        trello_outtage_list = trello_boards.get_lists_by_name(config.get('TrelloConfig', 'board_id'),
-                                        config.get('TrelloConfig', 'list_outtage'))
-        trello_outtage_list_id = str(trello_outtage_list[0]['id'])
-        trello_tech_debt_list = trello_boards.get_lists_by_name(config.get('TrelloConfig', 'board_id'),
-                                        config.get('TrelloConfig', 'list_tech_debt'))
-        trello_tech_debt_list_id = str(trello_tech_debt_list[0]['id'])
         trello_new_list = trello_boards.get_lists_by_name(config.get('TrelloConfig', 'board_id'),
                                         config.get('TrelloConfig', 'list_new'))
         trello_new_list_id = str(trello_new_list[0]['id'])
-        print "trello_outtage_list " + trello_outtage_list_id
-        print "trello_tech_debt_list " + trello_tech_debt_list_id
-        print "trello_new_list " + trello_tech_debt_list_id
-        trello_cards = trello.Cards(trello_api_context)
-        cards_outtage = trello_cards.get_cards(trello_outtage_list_id)
-        cards_outtage += trello_cards.get_cards(trello_tech_debt_list_id)
-        cards_outtage += trello_cards.get_cards(trello_new_list_id)
+
+        all_cards_on_board = trello_boards.get_cards(config.get('TrelloConfig', 'board_id'))
+        print "all cards " + str(len(all_cards_on_board))
+        cards_outtage = all_cards_on_board
 
         critical_bugs_with_out_escalation_cards = report.compare_bugs_with_cards(bugs_with_alerts_open, cards_outtage )
         print "critical bugs not tracked on board " + str(critical_bugs_with_out_escalation_cards)
 
         report.create_escalation(config, critical_bugs_with_out_escalation_cards, bugs_with_alerts_open, trello_new_list_id)
-
-
-
-
 
 
 if __name__ == '__main__':

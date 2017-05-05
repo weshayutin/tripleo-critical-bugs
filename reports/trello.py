@@ -89,6 +89,15 @@ class Boards(object):
         jsonResp = json.loads(resp.text)
         return jsonResp
 
+    def get_cards(self, boardId):
+        "Get all cards on a board."
+
+        boardListsUrl = '{0}/boards/{1}/cards'.format(self._api.ApiRootUrl, boardId)
+        resp = requests.get(boardListsUrl, params=self._api.Payload)
+        resp.raise_for_status()
+        jsonResp = json.loads(resp.text)
+        return jsonResp
+
     def get_lists_by_name(self, boardId, listName, raiseExceptionIfDuplicates=True):
         "Get all lists associated with a board by name."
         lists = self.get_lists(boardId)
