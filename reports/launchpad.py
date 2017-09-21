@@ -44,8 +44,7 @@ class LaunchpadReport(object):
                 if re.match(filter_re, milestone.name):
                     for task in project.searchTasks(milestone=milestone,
                                                     status=bug_statuses_open,
-                                                    importance='Critical',
-                                                    tags='alert'):
+                                                    tags='promotion-blocker'):
                         now = datetime.datetime.now(pytz.UTC)
                         five_hours_ago = now - timedelta(hours=5)
                         if five_hours_ago > task.date_created:

@@ -79,7 +79,7 @@ class StatusReport(object):
             print(card['name'])
 
         #debug only
-        #open_bugs = ['1682135', '3343433434', '1680259', '1121211']
+        #open_bugs = ['1704849']
 
         match = []
         for card in cards_outtage_names:
