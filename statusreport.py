@@ -50,7 +50,7 @@ class StatusReport(object):
 
         bugs = self._get_config_items('LaunchpadBugs')
 
-        report = LaunchpadReport(bugs)
+        report = LaunchpadReport(bugs, self.config)
         bugs_with_alerts_open, bugs_with_alerts_closed  = report.generate()
         return bugs_with_alerts_open, bugs_with_alerts_closed
 
@@ -110,6 +110,7 @@ class StatusReport(object):
                 msg['To'] = toaddr
                 msg['Subject'] = "[CIX][LP:" + bug + "][tripleoci][proa] " + bug_title
                 body = "Automatically generated escalation via #tripleo alerts: https://bugs.launchpad.net/tripleo/+bug/" + bug
+                body += "\n\nEscalation cards can be found in the New / Triage column of https://trello.com/b/j4IcIomh/production-chain-escalation"
                 msg.attach(MIMEText(body, 'plain'))
                 text = msg.as_string()
 

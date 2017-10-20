@@ -22,8 +22,9 @@ from launchpadlib.launchpad import Launchpad
 
 class LaunchpadReport(object):
 
-    def __init__(self, bugs):
+    def __init__(self, bugs, config):
         self.bugs = bugs
+        self.config = config
 
     def generate(self):
         bugs_with_alerts_open = {}
@@ -46,8 +47,9 @@ class LaunchpadReport(object):
                                                     status=bug_statuses_open,
                                                     tags='promotion-blocker'):
                         now = datetime.datetime.now(pytz.UTC)
-                        five_hours_ago = now - timedelta(hours=5)
-                        if five_hours_ago > task.date_created:
+                        delay = int(self.config.get('Bug', 'delay'))
+                        delay_time = now - timedelta(hours=delay)
+                        if delay_time > task.date_created:
                             bugs_with_alerts_open[task.bug.id] = task.bug
 
                     for task in project.searchTasks(milestone=milestone,
