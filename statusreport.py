@@ -115,8 +115,8 @@ class StatusReport(object):
                 text = msg.as_string()
 
                 server = smtplib.SMTP(config.get('Email', 'smtp_server'), config.get('Email', 'smtp_port'))
-                server.sendmail(fromaddr, toaddr, text)
-                print "escalation email sent to " + toaddr + " subj:" + msg['Subject']
+                # server.sendmail(fromaddr, toaddr, text)
+                # print "escalation email sent to " + toaddr + " subj:" + msg['Subject']
                 server.quit()
 
                 # create escalation card
