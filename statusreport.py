@@ -87,7 +87,7 @@ class StatusReport(object):
             for key in open_bugs:
                 #print "key " + str(key)
                 key = str(key)
-                if str(key) in str(card):
+                if key in card:
                     match.append(int(key))
         print "##########################################"
         print "openbugs " + str(set(open_bugs))
