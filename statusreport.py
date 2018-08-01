@@ -76,7 +76,7 @@ class StatusReport(object):
         cards_outtage_names = []
         for card in cards:
             cards_outtage_names.append(card['name'])
-            print(card['name'])
+            print(card['name'].encode('utf-8'))
 
         #debug only
         #open_bugs = ['1704849']
