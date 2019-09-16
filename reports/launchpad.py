@@ -11,15 +11,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+
 import datetime
 from datetime import timedelta
 import pytz
 import re
-import pdb
 
 from launchpadlib.launchpad import Launchpad
 
-
+""" this returns a list of launchpad bugs """
 class LaunchpadReport(object):
 
     def __init__(self, bugs, config):
@@ -34,7 +34,7 @@ class LaunchpadReport(object):
                                                 version='devel')
         bug_statuses_open = ['Confirmed', 'Triaged', 'In Progress', 'Fix Committed']
         bug_statuses_closed = ['Fix Released']
-        for label, config_string in self.bugs.iteritems():
+        for label, config_string in self.bugs.items():
 
 
             c = config_string.split(',')

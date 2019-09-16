@@ -1,3 +1,4 @@
 .cache
 *.pyc
 config/critical-alert-escalation.cfg
+.spyproject/

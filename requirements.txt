@@ -1,3 +1,4 @@
+configparser
 httplib2
 isodate
 jdcal==1.2
