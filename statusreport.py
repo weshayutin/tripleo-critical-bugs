@@ -120,7 +120,8 @@ class StatusReport(object):
             for bug in critical_bugs_with_out_escalation_cards:
                 bug_title = list_of_bugs[bug].title
 
-                card_title = "[CIX][LP:" + bug + "][tripleoci][proa] " + bug_title
+                card_title = "[CIX][LP:" + str(bug) + "][tripleoci][proa] " + \
+                    str(bug_title)
 
                 # create escalation card
                 trello_api_context = trello.ApiContext(config)
