@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -10,7 +12,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
 
 import datetime
 from datetime import timedelta
@@ -40,7 +41,6 @@ class LaunchpadReport(object):
             c = config_string.split(',')
             project = launchpad.projects[c[0]]
             filter_re = c[1]
-
             for milestone in project.all_milestones:
                 if re.match(filter_re, milestone.name):
                     for task in project.searchTasks(milestone=milestone,

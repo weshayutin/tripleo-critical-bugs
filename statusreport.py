@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # The MIT License (MIT)
 # Copyright (c) 2017 Wes Hayutin <weshayutin@gmail.com>
 #
@@ -25,14 +27,13 @@ then compares the list to cards on the cix trello board.  If there
 is a lp bug that does not have a card it will open a trello card
 """
 
-import argparse
+import click
 import configparser
 import os
+from launchpadlib.launchpad import Launchpad
 
 from reports.launchpad import LaunchpadReport
 import reports.trello as trello
-
-
 
 class StatusReport(object):
     """
@@ -40,9 +41,9 @@ class StatusReport(object):
     of trello cards.
     """
 
-    def __init__(self, config, args):
+    def __init__(self, config):
+
         self.config = config
-        #self.args = args
         self.brief_status = {}
         self.detailed_status = {}
 
@@ -55,8 +56,7 @@ class StatusReport(object):
         if not self.config.has_section('LaunchpadBugs'):
             return
 
-        bugs = self._get_config_items('LaunchpadBugs')
-
+        bugs = self.config["LaunchpadBugs"]
         report = LaunchpadReport(bugs, self.config)
         bugs_with_alerts_open, bugs_with_alerts_closed = report.generate()
         return bugs_with_alerts_open, bugs_with_alerts_closed
@@ -89,9 +89,6 @@ class StatusReport(object):
         for card in cards:
             cards_outtage_names.append(card['name'])
             print(card['name'].encode('utf-8'))
-
-        #debug only
-        #open_bugs = ['1704849']
 
         match = []
         for card in cards_outtage_names:
@@ -128,58 +125,62 @@ class StatusReport(object):
                 trello_cards = trello.Cards(trello_api_context)
                 trello_cards.create(card_title, trello_list)
 
-def main():
+@ click.command()
+@ click.option("--config_file", default="config/critical-alert-escalation.cfg",
+                help="Defaults to 'config/critical-alert-escalation.cfg'")
+@ click.option("--trello_token", required=True,
+                help="Your Trello Token")
+@ click.option("--trello_api_key", required=True,
+                help="Your Trello api key")
+@ click.option("--trello_board_id", required=True,
+                help="The trello board id")
+def main(config_file, trello_token, trello_api_key, trello_board_id):
     """
     get the list of promotion-blocker bugs
     compare the list to trello
     create cards as needed
     """
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument("files", metavar="FILE", nargs='+', help="Configuration Files")
-    args = arg_parser.parse_args()
 
-    for config_file in args.files:
-        # Load config file
-        config = configparser.ConfigParser()
-        # Preserve Case in keys
-        config.optionxform = str
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    config['TrelloConfig']['token'] = trello_token
+    config['TrelloConfig']['api_key'] = trello_api_key
+    config['TrelloConfig']['board_id'] = trello_board_id
 
-        if not os.path.exists(config_file):
-            raise ValueError('Failed to open/read "{file}"'.format(file=config_file))
-        config.read(config_file)
 
-        report = StatusReport(config, args)
 
-        bugs_with_alerts_open, bugs_with_alerts_closed = report.summarise_launchpad_bugs()
+    report = StatusReport(config)
 
-        print("*** open critical bugs ***")
-        open_bugs = report.print_report(bugs_with_alerts_open)
-        print("*** closed critical bugs ***")
-        report.print_report(bugs_with_alerts_closed)
+    bugs_with_alerts_open, bugs_with_alerts_closed = report.summarise_launchpad_bugs()
 
-        trello_api_context = trello.ApiContext(config)
-        trello_boards = trello.Boards(trello_api_context)
+    print("*** open critical bugs ***")
+    open_bugs = report.print_report(bugs_with_alerts_open)
+    print("*** closed critical bugs ***")
+    report.print_report(bugs_with_alerts_closed)
 
-        trello_new_list = trello_boards.get_lists_by_name(
-            config.get('TrelloConfig', 'board_id'),
-            config.get('TrelloConfig', 'list_new'))
-        trello_new_list_id = str(trello_new_list[0]['id'])
+    trello_api_context = trello.ApiContext(config)
+    trello_boards = trello.Boards(trello_api_context)
 
-        all_cards_on_board = trello_boards.get_cards(
-            config.get('TrelloConfig', 'board_id'))
-        print("all cards " + str(len(all_cards_on_board)))
-        cards_outtage = all_cards_on_board
+    trello_new_list = trello_boards.get_lists_by_name(
+        config.get('TrelloConfig', 'board_id'),
+        config.get('TrelloConfig', 'list_new'))
+    trello_new_list_id = str(trello_new_list[0]['id'])
 
-        critical_bugs_with_out_escalation_cards = \
-            report.compare_bugs_with_cards(bugs_with_alerts_open,
-                                           cards_outtage)
-        print("critical bugs not tracked on board " + \
-              str(critical_bugs_with_out_escalation_cards))
+    all_cards_on_board = trello_boards.get_cards(
+        config.get('TrelloConfig', 'board_id'))
+    print("all cards " + str(len(all_cards_on_board)))
+    cards_outtage = all_cards_on_board
 
-        report.create_escalation(config,
-                                 critical_bugs_with_out_escalation_cards,
-                                 bugs_with_alerts_open,
-                                 trello_new_list_id)
+    critical_bugs_with_out_escalation_cards = \
+        report.compare_bugs_with_cards(bugs_with_alerts_open,
+                                        cards_outtage)
+    print("critical bugs not tracked on board " + \
+            str(critical_bugs_with_out_escalation_cards))
+
+    report.create_escalation(config,
+                                critical_bugs_with_out_escalation_cards,
+                                bugs_with_alerts_open,
+                                trello_new_list_id)
 
 
 if __name__ == '__main__':
