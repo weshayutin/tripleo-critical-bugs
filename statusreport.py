@@ -116,6 +116,7 @@ class StatusReport(object):
             # send email to list
             for bug in critical_bugs_with_out_escalation_cards:
                 bug_title = list_of_bugs[bug].title
+                bug_link = list_of_bugs[bug].web_link
 
                 card_title = "[CIX][LP:" + str(bug) + "][tripleoci][proa] " + \
                     str(bug_title)
@@ -123,7 +124,9 @@ class StatusReport(object):
                 # create escalation card
                 trello_api_context = trello.ApiContext(config)
                 trello_cards = trello.Cards(trello_api_context)
-                trello_cards.create(card_title, trello_list)
+                trello_cards.create(card_title,
+                                    trello_list,
+                                    desc=bug_link)
 
 @ click.command()
 @ click.option("--config_file", default="config/critical-alert-escalation.cfg",
