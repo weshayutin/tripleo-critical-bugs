@@ -118,7 +118,7 @@ class StatusReport(object):
             for bug in critical_bugs_with_out_escalation_cards:
                 bug_title = list_of_bugs[bug].title
                 bug_link = list_of_bugs[bug].web_link
-                health_link = get_health_link(bug.id)
+                health_link = get_health_link(list_of_bugs[bug].id)
 
                 card_title = "[CIX][LP:" + str(bug) + "][tripleoci][proa] " + \
                     str(bug_title)
