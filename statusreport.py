@@ -32,6 +32,7 @@ import configparser
 import os
 from launchpadlib.launchpad import Launchpad
 
+from reports.erhealth import get_health_link
 from reports.launchpad import LaunchpadReport
 import reports.trello as trello
 
@@ -117,6 +118,7 @@ class StatusReport(object):
             for bug in critical_bugs_with_out_escalation_cards:
                 bug_title = list_of_bugs[bug].title
                 bug_link = list_of_bugs[bug].web_link
+                health_link = get_health_link(bug.id)
 
                 card_title = "[CIX][LP:" + str(bug) + "][tripleoci][proa] " + \
                     str(bug_title)
@@ -126,7 +128,7 @@ class StatusReport(object):
                 trello_cards = trello.Cards(trello_api_context)
                 trello_cards.create(card_title,
                                     trello_list,
-                                    desc=bug_link)
+                                    desc=bug_link + "\n" + health_link)
 
 @ click.command()
 @ click.option("--config_file", default="config/critical-alert-escalation.cfg",
