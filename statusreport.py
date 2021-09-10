@@ -32,7 +32,7 @@ import configparser
 import os
 from launchpadlib.launchpad import Launchpad
 
-from reports.erhealth import get_health_link
+from reports.erhealth import get_health_link, add_health_link
 from reports.launchpad import LaunchpadReport
 import reports.trello as trello
 
@@ -128,7 +128,7 @@ class StatusReport(object):
                 trello_cards = trello.Cards(trello_api_context)
                 trello_cards.create(card_title,
                                     trello_list,
-                                    desc=bug_link + "\n" + health_link)
+                                    desc=bug_link + health_link)
 
 @ click.command()
 @ click.option("--config_file", default="config/critical-alert-escalation.cfg",
@@ -174,6 +174,15 @@ def main(config_file, trello_token, trello_api_key, trello_board_id):
     all_cards_on_board = trello_boards.get_cards(
         config.get('TrelloConfig', 'board_id'))
     print("all cards " + str(len(all_cards_on_board)))
+
+    # Add health link if available to card without health link
+    for card in all_cards_on_board:
+        desc = add_health_link(card)
+        if desc != card["desc"]:
+            trello_api_context = trello.ApiContext(config)
+            trello_cards = trello.Cards(trello_api_context)
+            trello_cards.update(card["id"], desc)
+            print("Updated card " + card["name"])
     cards_outtage = all_cards_on_board
 
     critical_bugs_with_out_escalation_cards = \
