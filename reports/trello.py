@@ -252,3 +252,12 @@ class Cards(object):
         response = requests.get(getCardsUrl, params=self._api.Payload)
         response.raise_for_status()
         return json.loads(response.text)
+
+    def update(self, card_id, desc):
+        "update card"
+        url = "%s/cards/%s" % (self._api.ApiRootUrl, card_id)
+        response = requests.put(url,
+                                params=self._api.Payload,
+                                data=dict(desc=desc))
+        response.raise_for_status()
+        return json.loads(response.text)
